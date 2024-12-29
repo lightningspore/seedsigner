@@ -28,39 +28,6 @@ class Camera(Singleton):
         self._video_stream = PiVideoStream(resolution=resolution, framerate=framerate)
         self._video_stream.start()
 
-    # def read_video_stream(self, as_image=False):
-    #     if not self._video_stream:
-    #         raise Exception("Must call start_video_stream first.")
-
-    #     frame = self._video_stream.read()
-    #     if frame is None:
-    #         return None
-
-    #     if as_image:
-    #         # Convert the raw frame to an image
-    #         img = Image.frombytes('RGB', (self._video_stream.width, self._video_stream.height), frame)
-    #         return img.rotate(90 + self._camera_rotation)
-    #     return frame
-    
-    # def read_video_stream(self, as_image=False):
-    #     if not self._video_stream:
-    #         raise Exception("Must call start_video_stream first.")
-
-    #     frame = self._video_stream.read()
-    #     if frame is None:
-    #         return None
-
-    #     if as_image:
-    #         # Check if frame is already an Image object
-    #         if isinstance(frame, Image.Image):
-    #             img = frame
-    #         else:
-    #             # Convert the raw frame to an image
-    #             img = Image.frombytes('RGB', (self._video_stream.width, self._video_stream.height), frame)
-    #         return img.rotate(90 + self._camera_rotation)
-
-    #     return frame
-
     def read_video_stream(self, as_image=False):
         if not self._video_stream:
             raise Exception("Must call start_video_stream first.")
@@ -76,11 +43,6 @@ class Camera(Singleton):
             else:
                 # Convert the raw frame to an image
                 img = Image.frombytes('RGB', (self._video_stream.width, self._video_stream.height), frame)
-            
-            # Save the image for debugging
-            #debug_path = "/seedsigner/test_images/"
-            #os.makedirs(debug_path, exist_ok=True)
-            #img.save(os.path.join(debug_path, "test_image.png"), format="PNG")
 
             return img.rotate(90 + self._camera_rotation)
 
