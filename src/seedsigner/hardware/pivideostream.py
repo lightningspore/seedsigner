@@ -10,7 +10,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 class PiVideoStream:
-    def __init__(self, device='/dev/video12', resolution=(2304,1296), pixelformat='NV12', framerate=4):
+    def __init__(self, device='/dev/video12', resolution=(2304,1296), pixelformat='NV12', framerate=10):
         self.device = device
         self.width, self.height = resolution
         self.pixelformat = pixelformat
