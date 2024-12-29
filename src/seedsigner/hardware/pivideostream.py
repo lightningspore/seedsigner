@@ -71,7 +71,8 @@ class PiVideoStream:
 
                 with self.lock:
                     # DEBUG: Save NV12 frame TO DISK (Optional)
-                    self.save_pre_rgb(frame_data)
+                    # WILL QUICKLY FILL UP SPACE
+                    # self.save_pre_rgb(frame_data)
 
                     # Record time for conversion
                     start_conversion = time.time()
@@ -234,6 +235,7 @@ class PiVideoStream:
         # Resize if necessary (e.g., for a display resolution of 240x240)
         # Should I instead crop, then resize to minimize the distortion?
         if WIDTH != 240 or HEIGHT != 240:
+            # img = self.crop_to_square(img)
             img = img.resize((240, 240))
 
         # Clean up temporary files
@@ -257,10 +259,11 @@ class PiVideoStream:
             Image: PIL Image in Grayscale format.
         """
         # Create a PIL image from the grayscale data
-        img = Image.frombytes('L', (width, height), frame_data)
+        img = Image.frombytes("L", (width, height), frame_data)
 
         # Resize if necessary (e.g., for a display resolution of 240x240)
         if width != 240 or height != 240:
+            # img = self.crop_to_square(img)
             img = img.resize((240, 240))
 
         return img    
@@ -289,3 +292,14 @@ class PiVideoStream:
         rgb_image_path = os.path.join(self.save_path, f"frame_{time.time()}.png")
         rgb_image.save(rgb_image_path)
         print(f"Saved post-RGB frame to {rgb_image_path}")
+
+
+
+    def crop_to_square(self, image):
+        width, height = image.size
+        size = min(width, height)
+        left = (width - size) // 2
+        top = (height - size) // 2
+        right = left + size
+        bottom = top + size
+        return image.crop((left, top, right, bottom))
