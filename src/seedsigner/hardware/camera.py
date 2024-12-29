@@ -91,7 +91,9 @@ class Camera(Singleton):
             self._video_stream.stop()
             self._video_stream = None
 
-    def start_single_frame_mode(self, resolution=(240, 135)): # resolution=(720, 480)
+    # 240, 135?
+    # 2304x1296
+    def start_single_frame_mode(self, resolution=(2304, 1296)): # resolution=(720, 480)
         if self._video_stream is not None:
             self.stop_video_stream_mode()
 

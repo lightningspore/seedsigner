@@ -10,12 +10,15 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 class PiVideoStream:
-    def __init__(self, device='/dev/video15', resolution=(240, 135), pixelformat='NV12', framerate=2):
+    def __init__(self, device='/dev/video12', resolution=(2304,1296), pixelformat='NV12', framerate=4):
         self.device = device
         self.width, self.height = resolution
         self.pixelformat = pixelformat
         self.framerate = framerate
-        self.frame_size = self.width * self.height * 3 // 2  # NV12 format size calculation
+        if pixelformat == "NV12":
+            self.frame_size = self.width * self.height * 3 // 2  # NV12 format size calculation
+        else:
+            self.frame_size = self.width * self.height # GreyScale format size calculation
         self.frame = None
         self.should_stop = False
         self.is_stopped = True
@@ -45,9 +48,6 @@ class PiVideoStream:
         
         print(f"Running command: {' '.join(cmd)}")
 
-        # process = subprocess.Popen(
-        #     cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        # )
         process = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10 * self.frame_size
         )
@@ -70,14 +70,24 @@ class PiVideoStream:
                 start_processing = time.time()
 
                 with self.lock:
-                    # Save NV12 frame (optional, for debugging)
-                    #self.save_pre_rgb(frame_data)
+                    # DEBUG: Save NV12 frame TO DISK (Optional)
+                    self.save_pre_rgb(frame_data)
 
                     # Record time for conversion
                     start_conversion = time.time()
-                    self.frame = self.nv12_to_rgb(frame_data)
+                    if self.pixelformat == "NV12":
+                        # Python Implementation
+                        # self.frame = self.nv12_to_rgb(frame_data)
+                        # C Implementation
+                        self.frame = self.nv12_to_rgb_subprocess(frame_data, self.width, self.height)
+                    elif self.pixelformat == "GREY":
+                        self.frame = self.grey_to_pil(frame_data, self.width, self.height)
+                    else:
+                        self.frame = None
+                        raise Exception("Unable to read from camera")
+
                     conversion_time = time.time() - start_conversion
-                    print(f"NV12 to RGB conversion time: {conversion_time:.6f} seconds")
+                    print(f"{self.pixelformat} to PIL Image conversion time: {conversion_time:.6f} seconds")
 
                     # Save RGB image (optional, for debugging)
                    # self.save_post_rgb(self.frame)
@@ -178,6 +188,84 @@ class PiVideoStream:
             img = img.resize((240, 240))
 
         return img
+
+
+
+    def nv12_to_rgb_subprocess(self, frame_data, width, height):
+        """
+        Converts NV12 format to a PIL RGB Image using a C subprocess.
+
+        Args:
+            frame_data (bytes): NV12 frame data.
+
+        Returns:
+            Image: PIL Image in RGB format.
+        """
+        # WIDTH = 240
+        # HEIGHT = 135
+        WIDTH = width
+        HEIGHT = height
+
+        # Declare Temporary Files
+        rgb_file = "/tmp/rgb_frame.bin"
+        nv12_file = "/tmp/nv12_frame.bin"
+
+        # Save NV12 frame data to a temporary file
+        with open(nv12_file, "wb") as f:
+            f.write(frame_data)
+
+        # Run the C converter subprocess
+        cmd = [
+            "/nv12_converter",
+            nv12_file,
+            rgb_file,
+            str(WIDTH),
+            str(HEIGHT),
+        ]
+        subprocess.run(cmd, check=True)
+
+        # Load the RGB data from the output file
+        with open(rgb_file, "rb") as f:
+            rgb_data = f.read()
+
+        # Create a PIL image from the RGB data
+        img = Image.frombytes("RGB", (WIDTH, HEIGHT), rgb_data)
+
+        # Resize if necessary (e.g., for a display resolution of 240x240)
+        # Should I instead crop, then resize to minimize the distortion?
+        if WIDTH != 240 or HEIGHT != 240:
+            img = img.resize((240, 240))
+
+        # Clean up temporary files
+        os.remove(nv12_file)
+        os.remove(rgb_file)
+
+        return img
+
+    # def grayscale_to_img(
+
+    def grey_to_pil(self, frame_data, width, height):
+        """
+        Converts grayscale bytes to a PIL Image.
+
+        Args:
+            frame_data (bytes): Grayscale frame data.
+            width (int): Width of the frame.
+            height (int): Height of the frame.
+
+        Returns:
+            Image: PIL Image in Grayscale format.
+        """
+        # Create a PIL image from the grayscale data
+        img = Image.frombytes('L', (width, height), frame_data)
+
+        # Resize if necessary (e.g., for a display resolution of 240x240)
+        if width != 240 or height != 240:
+            img = img.resize((240, 240))
+
+        return img    
+
+
 
     def save_pre_rgb(self, frame_data):
         """
