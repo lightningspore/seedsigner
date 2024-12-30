@@ -108,7 +108,8 @@ class PiVideoStream:
     def read(self):
         with self.lock:
             if self.frame is not None:
-                print(f"Reading frame: {self.frame.size}")
+                pass
+                # print(f"Reading frame: {self.frame.size}")
             else:
                 #print("No frame available to read.")
                 iii =0 
@@ -243,6 +244,7 @@ class PiVideoStream:
         os.remove(rgb_file)
 
         return img
+        # return img.tobytes()
 
     # def grayscale_to_img(
 
