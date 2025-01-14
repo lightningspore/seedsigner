@@ -73,9 +73,6 @@ class Camera(Singleton):
             raise Exception("Failed to capture frame.")
 
         return frame
-        # Convert the frame to an image
-        # img = Image.frombytes('RGB', (self._video_stream.width, self._video_stream.height), frame)
-        # return img.rotate(90 + self._camera_rotation)
 
     def stop_single_frame_mode(self):
         if self._video_stream is not None:
