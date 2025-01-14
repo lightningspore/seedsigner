@@ -1,9 +1,12 @@
+import logging
 from typing import List
-# import RPi.GPIO as GPIO
 from periphery import GPIO
 import time
 
 from seedsigner.models.singleton import Singleton
+
+logger = logging.getLogger(__name__)
+
 
 class HardwareButtons(Singleton):
     # if GPIO.RPI_INFO['P1_REVISION'] == 3: #This indicates that we have revision 3 GPIO
@@ -47,26 +50,14 @@ class HardwareButtons(Singleton):
             cls._instance = cls.__new__(cls)
 
             #init GPIO
-            # GPIO.setmode(GPIO.BOARD)
-            # GPIO.setup(HardwareButtons.KEY_UP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY_DOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY_LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY_RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY_PRESS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-            # GPIO.setup(HardwareButtons.KEY3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-
-            pin1 = GPIO(42, "in") # LEFT  # yes-pullup
-            pin2 = GPIO(43, "in") # RIGHT # yes-pullup
-            pin4 = GPIO(55, "in") # UP    # no-pullup
-            pin5 = GPIO(54, "in") # DOWN  # no-pullup
-
-            pin6 = GPIO(53, "in") # PRESS # no-pullup
-
-            pin7 = GPIO(52, "in") # KEY1  # no-pullup
-            pin9 = GPIO(58, "in") # KEY2  # no-pullup
-            pin10 = GPIO(59, "in")# KEY3  # no-pullup
+            pin1 = GPIO(42, "in") # LEFT
+            pin2 = GPIO(43, "in") # RIGHT
+            pin4 = GPIO(55, "in") # UP
+            pin5 = GPIO(54, "in") # DOWN
+            pin6 = GPIO(53, "in") # PRESS
+            pin7 = GPIO(52, "in") # KEY1
+            pin9 = GPIO(58, "in") # KEY2
+            pin10 = GPIO(59, "in") # KEY3
 
             mapping = {
                 42: pin1,
@@ -78,7 +69,6 @@ class HardwareButtons(Singleton):
                 58: pin9,
                 59: pin10
             }
-
 
             cls._instance.GPIO = mapping
             cls._instance.override_ind = False
@@ -122,14 +112,6 @@ class HardwareButtons(Singleton):
 
                 # Resume from a fresh loop
                 continue
-
-            # time.sleep(1)
-
-            # print(f"available keys: {keys}")
-            # # random_key = random.choice(keys)
-            # random_key = int(input("what to do?"))    
-            # self.update_last_input_time()
-            # return random_key
 
             for key in keys:
                 if not check_release or ((check_release and key in release_keys and HardwareButtonsConstants.release_lock) or check_release and key not in release_keys):
@@ -235,8 +217,6 @@ class HardwareButtons(Singleton):
 # TODO: Implement `release_lock` functionality as a global somewhere. Mixes up design
 #   patterns to have a static constants class plus a settable global value.
 class HardwareButtonsConstants:
-    # if True:
-    # if GPIO.RPI_INFO['P1_REVISION'] == 3: #This indicates that we have revision 3 GPIO
     KEY_UP = 58
     KEY_DOWN = 53
     KEY_LEFT = 59
@@ -246,28 +226,6 @@ class HardwareButtonsConstants:
     KEY1 = 55
     KEY2 = 43
     KEY3 = 42
-
-    # if True:
-    # # if GPIO.RPI_INFO['P1_REVISION'] == 3: #This indicates that we have revision 3 GPIO
-    #     KEY_UP = 31
-    #     KEY_DOWN = 35
-    #     KEY_LEFT = 29
-    #     KEY_RIGHT = 37
-    #     KEY_PRESS = 33
-
-    #     KEY1 = 40
-    #     KEY2 = 38
-        # KEY3 = 36
-    # else:
-    #     KEY_UP = 5
-    #     KEY_DOWN = 11
-    #     KEY_LEFT = 3
-    #     KEY_RIGHT = 15
-    #     KEY_PRESS = 7
-
-    #     KEY1 = 16
-    #     KEY2 = 12
-    #     KEY3 = 8
 
     OVERRIDE = 1000
 
