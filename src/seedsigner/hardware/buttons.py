@@ -62,8 +62,6 @@ class HardwareButtons(Singleton):
 
 
     def wait_for(self, keys=[], check_release=True, release_keys=[]) -> int:
-        print(f"wait for --- {keys}")
-        import random
         # TODO: Refactor to keep control in the Controller and not here
         from seedsigner.controller import Controller
         controller = Controller.get_instance()
@@ -73,7 +71,6 @@ class HardwareButtons(Singleton):
         self.override_ind = False
 
         while True:
-            # print("wait_for loop")
             cur_time = int(time.time() * 1000)
             if cur_time - self.last_input_time > controller.screensaver_activation_ms and not controller.is_screensaver_running:
                 # Start the screensaver. Will block execution until input detected.
@@ -94,7 +91,6 @@ class HardwareButtons(Singleton):
                     # when check release is False or the release lock is released (True)
                     # if self.GPIO.input(key) == GPIO.LOW or self.override_ind:
                     if self.GPIO[key].read() == False or self.override_ind:
-                        print(f"{key} is pressed! what now?")
                         # HardwareButtonsConstants.release_lock = False
                         HardwareButtonsConstants.release_lock = True
                         if self.override_ind:
@@ -139,7 +135,6 @@ class HardwareButtons(Singleton):
 
 
     def update_last_input_time(self):
-        print("update_last_input_time")
         self.last_input_time = int(time.time() * 1000)
 
 
@@ -167,7 +162,6 @@ class HardwareButtons(Singleton):
         return True
 
     def check_for_low(self, key: int = None, keys: List[int] = None) -> bool:
-        print("check_for_low")
         if key:
             keys = [key]
         for key in keys:
