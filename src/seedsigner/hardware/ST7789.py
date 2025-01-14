@@ -46,7 +46,6 @@ class ST7789(object):
 
         self.command(0x3A) 
         self.data(0x05)
-        print("initializing display")
         self.command(0xB2)
         self.data(0x0C)
         self.data(0x0C)
