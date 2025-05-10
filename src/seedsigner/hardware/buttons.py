@@ -1,6 +1,6 @@
 import logging
 from typing import List
-import RPi.GPIO as GPIO
+from periphery import GPIO
 import time
 
 from seedsigner.models.singleton import Singleton
@@ -9,29 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 class HardwareButtons(Singleton):
-    if GPIO.RPI_INFO['P1_REVISION'] == 3: #This indicates that we have revision 3 GPIO
-        logger.info("Detected 40pin GPIO (Rasbperry Pi 2 and above)")
-        KEY_UP_PIN = 31
-        KEY_DOWN_PIN = 35
-        KEY_LEFT_PIN = 29
-        KEY_RIGHT_PIN = 37
-        KEY_PRESS_PIN = 33
+    KEY_UP_PIN = 5
+    KEY_DOWN_PIN = 11
+    KEY_LEFT_PIN = 3
+    KEY_RIGHT_PIN = 15
+    KEY_PRESS_PIN = 7
 
-        KEY1_PIN = 40
-        KEY2_PIN = 38
-        KEY3_PIN = 36
-
-    else:
-        logger.info("Assuming 26 Pin GPIO (Raspberry P1 1)")
-        KEY_UP_PIN = 5
-        KEY_DOWN_PIN = 11
-        KEY_LEFT_PIN = 3
-        KEY_RIGHT_PIN = 15
-        KEY_PRESS_PIN = 7
-
-        KEY1_PIN = 16
-        KEY2_PIN = 12
-        KEY3_PIN = 8
+    KEY1_PIN = 16
+    KEY2_PIN = 12
+    KEY3_PIN = 8
 
     @classmethod
     def get_instance(cls):
@@ -40,17 +26,27 @@ class HardwareButtons(Singleton):
             cls._instance = cls.__new__(cls)
 
             #init GPIO
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(HardwareButtons.KEY_UP_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY_DOWN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY_LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY_RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY_PRESS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY1_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY2_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
-            GPIO.setup(HardwareButtons.KEY3_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Input with pull-up
+            pin1 = GPIO(42, "in") # LEFT
+            pin2 = GPIO(43, "in") # RIGHT
+            pin4 = GPIO(55, "in") # UP
+            pin5 = GPIO(54, "in") # DOWN
+            pin6 = GPIO(53, "in") # PRESS
+            pin7 = GPIO(52, "in") # KEY1
+            pin9 = GPIO(58, "in") # KEY2
+            pin10 = GPIO(59, "in") # KEY3
 
-            cls._instance.GPIO = GPIO
+            mapping = {
+                42: pin1,
+                43: pin2,
+                55: pin4,
+                54: pin5,
+                53: pin6,
+                52: pin7,
+                58: pin9,
+                59: pin10
+            }
+
+            cls._instance.GPIO = mapping
             cls._instance.override_ind = False
 
             cls._instance.add_events([HardwareButtonsConstants.KEY_UP, HardwareButtonsConstants.KEY_DOWN, HardwareButtonsConstants.KEY_PRESS, HardwareButtonsConstants.KEY_LEFT, HardwareButtonsConstants.KEY_RIGHT, HardwareButtonsConstants.KEY1, HardwareButtonsConstants.KEY2, HardwareButtonsConstants.KEY3])
@@ -93,8 +89,10 @@ class HardwareButtons(Singleton):
             for key in keys:
                 if not check_release or ((check_release and key in release_keys and HardwareButtonsConstants.release_lock) or check_release and key not in release_keys):
                     # when check release is False or the release lock is released (True)
-                    if self.GPIO.input(key) == GPIO.LOW or self.override_ind:
-                        HardwareButtonsConstants.release_lock = False
+                    # if self.GPIO.input(key) == GPIO.LOW or self.override_ind:
+                    if self.GPIO[key].read() == False or self.override_ind:
+                        # HardwareButtonsConstants.release_lock = False
+                        HardwareButtonsConstants.release_lock = True
                         if self.override_ind:
                             self.override_ind = False
                             return HardwareButtonsConstants.OVERRIDE
@@ -141,8 +139,9 @@ class HardwareButtons(Singleton):
 
 
     def add_events(self, keys=[]):
-        for key in keys:
-            GPIO.add_event_detect(key, self.GPIO.RISING, callback=HardwareButtons.rising_callback)
+        pass
+        # for key in keys:
+        #     GPIO.add_event_detect(key, self.GPIO.RISING, callback=HardwareButtons.rising_callback)
 
 
     def rising_callback(channel):
@@ -166,7 +165,8 @@ class HardwareButtons(Singleton):
         if key:
             keys = [key]
         for key in keys:
-            if self.GPIO.input(key) == self.GPIO.LOW:
+            # if self.GPIO.input(key) == self.GPIO.LOW:
+            if self.GPIO[key].read() == False:
                 self.update_last_input_time()
                 return True
         else:
@@ -174,34 +174,28 @@ class HardwareButtons(Singleton):
 
     def has_any_input(self) -> bool:
         for key in HardwareButtonsConstants.ALL_KEYS:
-            if self.GPIO.input(key) == GPIO.LOW:
-                return True
+            # if self.GPIO.input(key) == GPIO.LOW:
+            try:
+                if self.GPIO[key].read() == False:
+                    return True
+            except IndexError as e:
+                print(e)
+                print(f"issue with key: {key}")
         return False
 
 # class used as short hand for static button/channel lookup values
 # TODO: Implement `release_lock` functionality as a global somewhere. Mixes up design
 #   patterns to have a static constants class plus a settable global value.
 class HardwareButtonsConstants:
-    if GPIO.RPI_INFO['P1_REVISION'] == 3: #This indicates that we have revision 3 GPIO
-        KEY_UP = 31
-        KEY_DOWN = 35
-        KEY_LEFT = 29
-        KEY_RIGHT = 37
-        KEY_PRESS = 33
+    KEY_UP = 58
+    KEY_DOWN = 53
+    KEY_LEFT = 59
+    KEY_RIGHT = 54
+    KEY_PRESS = 52
 
-        KEY1 = 40
-        KEY2 = 38
-        KEY3 = 36
-    else:
-        KEY_UP = 5
-        KEY_DOWN = 11
-        KEY_LEFT = 3
-        KEY_RIGHT = 15
-        KEY_PRESS = 7
-
-        KEY1 = 16
-        KEY2 = 12
-        KEY3 = 8
+    KEY1 = 55
+    KEY2 = 43
+    KEY3 = 42
 
     OVERRIDE = 1000
 
