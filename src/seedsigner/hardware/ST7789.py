@@ -14,8 +14,8 @@ class ST7789(object):
 
         #Initialize DC RST pin
         # self._bl_pin = 18 # ignore backlight
-        self._dc_pin = 56 # GPIO1_D3_d -> (3*8) + 3 = 27 + (32 * 1) = 59
-        self._rst_pin = 57 # GPIO1_D2_d -> (3*8) + 2 = 26 + (32 * 1) = 58
+        self._dc_pin = 52 # GPIO1_D3_d -> (3*8) + 3 = 27 + (32 * 1) = 59
+        self._rst_pin = 51 # GPIO1_D2_d -> (3*8) + 2 = 26 + (32 * 1) = 58
 
         self._dc = GPIO(self._dc_pin, "out")
         self._rst = GPIO(self._rst_pin, "out")
