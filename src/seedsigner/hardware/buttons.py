@@ -27,24 +27,24 @@ class HardwareButtons(Singleton):
             cls._instance = cls.__new__(cls)
 
             #init GPIO
-            pin1 = GPIO(42, "in") # LEFT
-            pin2 = GPIO(43, "in") # RIGHT
-            pin4 = GPIO(55, "in") # UP
-            pin5 = GPIO(54, "in") # DOWN
-            pin6 = GPIO(53, "in") # PRESS
-            pin7 = GPIO(52, "in") # KEY1
-            pin9 = GPIO(58, "in") # KEY2
-            pin10 = GPIO(59, "in") # KEY3
+            btn_left = GPIO(56, "in") # LEFT
+            btn_right = GPIO(54, "in") # RIGHT
+            btn_up = GPIO(57, "in") # UP
+            btn_down = GPIO(59, "in") # DOWN
+            btn_press = GPIO(58, "in") # PRESS
+            btn_key1 = GPIO(55, "in") # KEY1
+            btn_key2 = GPIO(4, "in") # KEY2
+            btn_key3 = GPIO(53, "in") # KEY3
 
             mapping = {
-                42: pin1,
-                43: pin2,
-                55: pin4,
-                54: pin5,
-                53: pin6,
-                52: pin7,
-                58: pin9,
-                59: pin10
+                56: btn_left,
+                54: btn_right,
+                57: btn_up,
+                59: btn_down,
+                58: btn_press,
+                55: btn_key1,
+                4: btn_key2,
+                53: btn_key3
             }
 
             cls._instance.GPIO = mapping
@@ -181,15 +181,15 @@ class HardwareButtons(Singleton):
 
 # class used as short hand for static button/channel lookup values
 class HardwareButtonsConstants:
-    KEY_UP = 58
-    KEY_DOWN = 53
-    KEY_LEFT = 59
+    KEY_UP = 57
+    KEY_DOWN = 59
+    KEY_LEFT = 56
     KEY_RIGHT = 54
-    KEY_PRESS = 52
+    KEY_PRESS = 58
 
     KEY1 = 55
-    KEY2 = 43
-    KEY3 = 42
+    KEY2 = 4
+    KEY3 = 53
 
     OVERRIDE = 1000
 
