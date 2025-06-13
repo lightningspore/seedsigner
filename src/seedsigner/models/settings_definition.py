@@ -324,23 +324,21 @@ class SettingsConstants:
     # PICO & PICO PRO
     HARDWARE_PIN_CONFIG__FOX_40 = {
         "display": {
-            # TODO: fix these pin and port numbers
-            "dc": ("/dev/gpiochip1", 20),
-            "rst": ("/dev/gpiochip1", 19),
-            "bl": ("/dev/gpiochip1", 11),
+            "dc": ("/dev/gpiochip1", 24),
+            "rst": ("/dev/gpiochip1", 25),
+            "bl": ("/dev/gpiochip2", 8),
             "spi_bus": 0,
             "spi_device": 0
         },
         "buttons": {
-            # TODO: fix these pin and port numbers
-            "KEY_UP": ("/dev/gpiochip1", 25),
-            "KEY_DOWN": ("/dev/gpiochip1", 27),
-            "KEY_LEFT": ("/dev/gpiochip1", 24),
+            "KEY_UP": ("/dev/gpiochip1", 28),
+            "KEY_DOWN": ("/dev/gpiochip1", 21),
+            "KEY_LEFT": ("/dev/gpiochip1", 27),
             "KEY_RIGHT": ("/dev/gpiochip1", 22),
-            "KEY_PRESS": ("/dev/gpiochip1", 26),
+            "KEY_PRESS": ("/dev/gpiochip1", 20),
             "KEY1": ("/dev/gpiochip1", 23),
-            "KEY2": ("/dev/gpiochip0", 4),
-            "KEY3": ("/dev/gpiochip1", 21),
+            "KEY2": ("/dev/gpiochip1", 11),
+            "KEY3": ("/dev/gpiochip1", 10),
         },
         "camera": {
             "device": "/dev/video12",

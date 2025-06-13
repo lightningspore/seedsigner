@@ -45,12 +45,12 @@ class ST7789(object):
     def command(self, cmd):
         """Write register address"""
         self._dc.write(False)
-        self._spi.transfer([cmd])
+        self._chunked_transfer([cmd])
 
     def data(self, val):
         """Write data"""
         self._dc.write(True)
-        self._spi.transfer([val])
+        self._chunked_transfer([val])
 
     def init(self):
         """Initialize dispaly"""    
