@@ -315,7 +315,7 @@ class SettingsConstants:
         },
         "camera": {
             "device": "/dev/video12",
-            "resolution": (2304, 1296),
+            "resolution": (800, 600),
             "pixelformat": "NV12",
             "framerate": 10
         }
@@ -342,7 +342,7 @@ class SettingsConstants:
         },
         "camera": {
             "device": "/dev/video12",
-            "resolution": (2304, 1296),
+            "resolution": (800, 600),
             "pixelformat": "NV12",
             "framerate": 10
         }
