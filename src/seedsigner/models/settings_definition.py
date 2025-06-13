@@ -304,14 +304,14 @@ class SettingsConstants:
             "spi_device": 0
         },
         "buttons": {
-            "KEY_UP": 57,
-            "KEY_DOWN": 59,
-            "KEY_LEFT": 56,
-            "KEY_RIGHT": 54,
-            "KEY_PRESS": 58,
-            "KEY1": 55,
-            "KEY2": 4,
-            "KEY3": 53,
+            "KEY_UP": ("/dev/gpiochip1", 25),
+            "KEY_DOWN": ("/dev/gpiochip1", 27),
+            "KEY_LEFT": ("/dev/gpiochip1", 24),
+            "KEY_RIGHT": ("/dev/gpiochip1", 22),
+            "KEY_PRESS": ("/dev/gpiochip1", 26),
+            "KEY1": ("/dev/gpiochip1", 23),
+            "KEY2": ("/dev/gpiochip0", 4),
+            "KEY3": ("/dev/gpiochip1", 21),
         },
         "camera": {
             "device": "/dev/video12",

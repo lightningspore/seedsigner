@@ -5,8 +5,8 @@ import threading
 import time
 import os
 from PIL import Image
-import cv2
-import numpy as np
+# import cv2
+# import numpy as np
 
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
@@ -89,9 +89,9 @@ class PiVideoStream:
                         # Python Implementation
                         # self.frame = self.nv12_to_rgb(frame_data)
                         # C Implementation
-                        # self.frame = self.nv12_to_rgb_subprocess(frame_data, self.width, self.height)
+                        self.frame = self.nv12_to_rgb_subprocess(frame_data, self.width, self.height)
                         # OpenCV Implementation
-                        self.frame = self.nv12_to_rgb_opencv(frame_data, self.width, self.height)
+                        # self.frame = self.nv12_to_rgb_opencv(frame_data, self.width, self.height)
                     elif self.pixelformat == "GREY":
                         self.frame = self.grey_to_pil(frame_data, self.width, self.height)
                     elif self.pixelformat == "YUYV":
