@@ -59,7 +59,7 @@ class PiVideoStream:
             '--stream-count=0'  # Infinite stream
         ]
         
-        logger.debug(f"Running command: {' '.join(cmd)}")
+        logger.info(f"Running command: {' '.join(cmd)}")
 
         process = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10 * self.frame_size
