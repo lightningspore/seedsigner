@@ -297,9 +297,9 @@ class SettingsConstants:
     # PICO MINI
     HARDWARE_PIN_CONFIG__FOX_22 = {
         "display": {
-            "dc": 52,
-            "rst": 51,
-            "bl": 18,
+            "dc": ("/dev/gpiochip1", 20),
+            "rst": ("/dev/gpiochip1", 19),
+            "bl": ("/dev/gpiochip1", 11),
             "spi_bus": 0,
             "spi_device": 0
         },
@@ -324,21 +324,23 @@ class SettingsConstants:
     # PICO & PICO PRO
     HARDWARE_PIN_CONFIG__FOX_40 = {
         "display": {
-            "dc": 25,
-            "rst": 27,
-            "bl": 24,
+            # TODO: fix these pin and port numbers
+            "dc": ("/dev/gpiochip1", 20),
+            "rst": ("/dev/gpiochip1", 19),
+            "bl": ("/dev/gpiochip1", 11),
             "spi_bus": 0,
             "spi_device": 0
         },
         "buttons": {
-            "KEY_UP": 17,
-            "KEY_DOWN": 27,
-            "KEY_LEFT": 22,
-            "KEY_RIGHT": 23,
-            "KEY_PRESS": 4,
-            "KEY1": 21,
-            "KEY2": 20,
-            "KEY3": 16,
+            # TODO: fix these pin and port numbers
+            "KEY_UP": ("/dev/gpiochip1", 25),
+            "KEY_DOWN": ("/dev/gpiochip1", 27),
+            "KEY_LEFT": ("/dev/gpiochip1", 24),
+            "KEY_RIGHT": ("/dev/gpiochip1", 22),
+            "KEY_PRESS": ("/dev/gpiochip1", 26),
+            "KEY1": ("/dev/gpiochip1", 23),
+            "KEY2": ("/dev/gpiochip0", 4),
+            "KEY3": ("/dev/gpiochip1", 21),
         },
         "camera": {
             "device": "/dev/video12",

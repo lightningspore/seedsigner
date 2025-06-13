@@ -14,16 +14,16 @@ class ST7789(object):
     def __init__(self):
         self.width = 240
         self.height = 240
-        self.CHUNK_SIZE = 4096
+        self.CHUNK_SIZE = 4096 * 12
 
         hardware_config = Settings.get_instance().get_value(SettingsConstants.SETTING__HARDWARE_CONFIG)
         pin_mapping = SettingsConstants.ALL_HARDWARE_PIN_CONFIGS__PIN_DEFINITIONS[hardware_config]["display"]
 
         # Initialize DC RST pin using BCM numbering
         # TODO: parameterize the GPIO-chip too!
-        self._dc = GPIO(pin_mapping["dc"], "out")
-        self._rst = GPIO(pin_mapping["rst"], "out")
-        self._bl = GPIO(pin_mapping["bl"], "out")
+        self._dc = GPIO(*pin_mapping["dc"], "out")
+        self._rst = GPIO(*pin_mapping["rst"], "out")
+        self._bl = GPIO(*pin_mapping["bl"], "out")
         self._bl.write(True)
 
         # Initialize SPI
@@ -45,12 +45,12 @@ class ST7789(object):
     def command(self, cmd):
         """Write register address"""
         self._dc.write(False)
-        self._chunked_transfer([cmd])
+        self._spi.transfer([cmd])
 
     def data(self, val):
         """Write data"""
         self._dc.write(True)
-        self._chunked_transfer([val])
+        self._spi.transfer([val])
 
     def init(self):
         """Initialize dispaly"""    
