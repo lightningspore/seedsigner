@@ -89,7 +89,6 @@ class ToolsImageEntropyFinalImageView(View):
             # actually display.
             camera.start_single_frame_mode()
 
-
             time.sleep(0.25)
             self.controller.image_entropy_final_image = camera.capture_frame()
             camera.stop_single_frame_mode()
