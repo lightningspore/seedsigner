@@ -5,8 +5,6 @@ from seedsigner.hardware.pivideostream import PiVideoStream
 from seedsigner.models.settings import Settings, SettingsConstants
 from seedsigner.models.singleton import Singleton
 
-# custom adds
-import array
 
 class Camera(Singleton):
     _video_stream = None
