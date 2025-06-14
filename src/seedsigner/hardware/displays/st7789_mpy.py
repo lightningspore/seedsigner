@@ -51,10 +51,12 @@ This driver supports:
 """
 
 import array
-import spidev
-import RPi.GPIO as GPIO
-
+from periphery import GPIO, SPI
+import time
 from math import sin, cos
+
+from seedsigner.models.settings import Settings
+from seedsigner.models.settings_definition import SettingsConstants
 
 #
 # This allows sphinx to build the docs
@@ -264,29 +266,17 @@ class ST7789:
 
     def __init__(
         self,
-        # spi,
         width,
         height,
-        reset=13,
-        dc=22,
+        reset=27,
+        dc=25,
         cs=None,
-        backlight=18,
+        backlight=24,
         rotation=1,
         color_order=BGR,
         custom_init=None,
         custom_rotations=None,
     ):
-
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setwarnings(False)
-        GPIO.setup(dc,GPIO.OUT)
-        GPIO.setup(reset,GPIO.OUT)
-        GPIO.setup(backlight,GPIO.OUT)
-
-        #Initialize SPI
-        spi = spidev.SpiDev(0, 0)
-        spi.max_speed_hz = 40000000
-
         """
         Initialize display.
         """
@@ -301,16 +291,25 @@ class ST7789:
 
         if dc is None:
             raise ValueError("dc pin is required.")
+        
+        hardware_config = Settings.get_instance().get_value(SettingsConstants.SETTING__HARDWARE_CONFIG)
+        pin_mapping = SettingsConstants.ALL_HARDWARE_PIN_CONFIGS__PIN_DEFINITIONS[hardware_config]["display"]
 
         self.physical_width = self.width = width
         self.physical_height = self.height = height
         self.xstart = 0
         self.ystart = 0
-        self.spi = spi
-        self.reset = reset
-        self.dc = dc
-        self.cs = cs
-        self.backlight = backlight
+        
+        # Initialize GPIO pins with periphery
+        # TODO: parameterize the GPIO-chip too!
+        self._dc = GPIO("/dev/gpiochip0", pin_mapping["dc"], "out")
+        self._rst = GPIO("/dev/gpiochip0", pin_mapping["rst"], "out")
+        self._bl = GPIO("/dev/gpiochip0", pin_mapping["bl"], "out")
+        self._cs = GPIO("/dev/gpiochip0", cs, "out") if cs is not None else None
+        
+        # Initialize SPI
+        self._spi = SPI(f"/dev/spidev{pin_mapping['spi_bus']}.{pin_mapping['spi_device']}", 0, 40000000)
+        
         self._rotation = rotation % 4
         self.color_order = color_order
         self.init_cmds = custom_init or _ST7789_INIT_CMDS
@@ -323,8 +322,7 @@ class ST7789:
         self.fill(0x0)
 
         if backlight is not None:
-            GPIO.output(backlight, GPIO.HIGH)
-            # backlight.value(1)
+            self._bl.write(True)
 
     @staticmethod
     def _find_rotations(width, height):
@@ -361,39 +359,39 @@ class ST7789:
         pix = arr.tobytes()
 
         self._set_window(x_start, y_start, self.width, self.height)
-        GPIO.output(self.dc,GPIO.HIGH)
+        self._dc.write(True)
         self._write(data=pix)
 
     def _write(self, command=None, data=None):
         """SPI write to the device: commands and data."""
-        if self.cs:
-            GPIO.output(self.cs, GPIO.LOW)
+        if self._cs:
+            self._cs.write(False)
         if command is not None:
-            GPIO.output(self.dc, GPIO.LOW)
-            self.spi.writebytes2(command)
+            self._dc.write(False)
+            self._spi.transfer(command)
         if data is not None:
-            GPIO.output(self.dc,GPIO.HIGH)
-            self.spi.writebytes2(data)
-            if self.cs:
-                GPIO.output(self.cs,GPIO.HIGH)
+            self._dc.write(True)
+            self._spi.transfer(data)
+            if self._cs:
+                self._cs.write(True)
 
     def hard_reset(self):
         """
         Hard reset display.
         """
-        if self.cs:
-            GPIO.output(self.cs, GPIO.LOW)
-        if self.reset:
-            GPIO.output(self.reset, GPIO.HIGH)
+        if self._cs:
+            self._cs.write(False)
+        if self._rst:
+            self._rst.write(True)
         sleep_ms(10)
-        if self.reset:
-            GPIO.output(self.reset, GPIO.LOW)
+        if self._rst:
+            self._rst.write(False)
         sleep_ms(10)
-        if self.reset:
-            GPIO.output(self.reset, GPIO.HIGH)
+        if self._rst:
+            self._rst.write(True)
         sleep_ms(120)
-        if self.cs:
-            GPIO.output(self.cs, GPIO.HIGH)
+        if self._cs:
+            self._cs.write(True)
 
     def soft_reset(self):
         """
@@ -567,7 +565,7 @@ class ST7789:
         pixel = struct.pack(
             _ENCODE_PIXEL_SWAPPED if self.needs_swap else _ENCODE_PIXEL, color
         )
-        GPIO.output(self.dc,GPIO.HIGH)
+        self._dc.write(True)
         if chunks:
             data = pixel * _BUFFER_SIZE
             for _ in range(chunks):
@@ -1031,3 +1029,12 @@ class ST7789:
                 rotated[i][1],
                 color,
             )
+
+    def __del__(self):
+        """Cleanup when object is destroyed"""
+        self._spi.close()
+        self._dc.close()
+        self._rst.close()
+        self._bl.close()
+        if self._cs:
+            self._cs.close()
