@@ -5,8 +5,6 @@ import threading
 import time
 import os
 from PIL import Image
-# import cv2
-# import numpy as np
 
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
@@ -132,8 +130,13 @@ class PiVideoStream:
 
     def yuyv_to_rgb_opencv(self, frame_data, width, height):
         """
-        Converts YUYV format to a PIL RGB Image using a C subprocess.
+        Converts YUYV format to a PIL RGB Image using OpenCV
         """
+        # DO THESE IMPORTS HERE SO WE ONLY IMPORT WHEN WE NEED IT
+        # SOME HARDWARE WONT SUPPORT THESE LIBRARIES
+        # THIS WILL ACTUALLY BE SUPER SLOW TO HAVE THE IMPORTS HERE BUT LEAVE IT LIKE THIS FOR NOW
+        import cv2
+        import numpy as np
         # Convert bytes to numpy array
         yuyv = np.frombuffer(frame_data, dtype=np.uint8)
         # Reshape to (height, width, 2) for YUYV
