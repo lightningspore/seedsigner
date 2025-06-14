@@ -87,7 +87,6 @@ class ToolsImageEntropyFinalImageView(View):
 
             # Final image will be at least 4x the number of pixels the screen can
             # actually display.
-            # camera.start_single_frame_mode(resolution=(2*max_dim, 2*max_dim))
             camera.start_single_frame_mode()
 
 
